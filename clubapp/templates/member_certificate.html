@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Certificate</title>
+    
+    <link rel="icon" type="image/png" href="{% static 'images/fav (1).png' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Great+Vibes&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e5e7eb;
+            font-family: 'Lora', serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .certificate {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            background-color: #fffcf5;
+            background-image: radial-gradient(circle, #fffcf5 0%, #f0e6d2 100%);
+            padding: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            color: #1f2937;
+            margin: 0 auto;
+        }
+
+        .certificate-inner {
+            border: 5px solid #0f3c8a;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+            outline: 2px solid #c9a44f;
+            outline-offset: -10px;
+        }
+
+        .certificate-inner::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid #c9a44f;
+            z-index: -1;
+        }
+
+        .certificate-inner::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 350px;
+            background-image: url("{% static 'images/maxlogo.png' %}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.07;
+            z-index: -1;
+        }
+
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #c9a44f;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .cert-heading-small {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .cert-logo img {
+            max-height: 50px;
+        }
+
+        .cert-title {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #0f3c8a;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .cert-subtitle {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            color: #c9a44f;
+            text-align: center;
+            margin-top: 5px;
+            font-weight: 700;
+        }
+
+        .presented {
+            font-style: italic;
+            font-size: 13px;
+            color: #4b5563;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .member-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 50px;
+            color: #111827;
+            text-align: center;
+            margin: 8px 0 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .field-block {
+            text-align: center;
+        }
+
+        .field-label {
+            font-family: 'Cinzel', serif;
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .field-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f3c8a;
+            border-bottom: 1px dashed #9ca3af;
+            padding-bottom: 3px;
+            min-width: 140px;
+        }
+
+        .pv-section {
+            margin: 30px auto;
+            text-align: center;
+            border: 2px dashed #c9a44f;
+            padding: 8px 25px;
+            border-radius: 8px;
+            background: rgba(201, 164, 79, 0.05);
+            width: fit-content;
+        }
+
+        .pv-label {
+            font-family: 'Cinzel', serif;
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #854d0e;
+        }
+
+        .pv-value {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f3c8a;
+        }
+
+        .footer-row {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-meta {
+            font-size: 9px;
+            color: #9ca3af;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sign-box {
+            text-align: center;
+        }
+
+        .sign-label {
+            font-family: 'Cinzel', serif;
+            font-size: 8px;
+            color: #0f3c8a;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .digital-sign {
+            margin-top: 6px;
+            font-size: 9px;
+            color: #fff;
+            background: #16a34a;
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+    <div class="certificate">
+        <div class="certificate-inner">
+
+            <div class="cert-header">
+                <div class="cert-heading-small">Official Member Document</div>
+                <div class="cert-logo">
+                    <img src="{% static 'images/maxlogo.png' %}" alt="Maxgive Logo">
+                </div>
+            </div>
+
+            <div class="cert-title">Certificate</div>
+            <div class="cert-subtitle">of Authenticity</div>
+
+            <div class="presented">This is to certify that</div>
+            <div class="member-name">{{ member.full_name }}</div>
+            <div class="presented">has been officially verified as a registered member.</div>
+
+            <div class="info-row">
+                <div class="field-block">
+                    <div class="field-label">Member ID</div>
+                    <div class="field-value">{{ member.member_code }}</div>
+                </div>
+                <div class="field-block">
+                    <div class="field-label">Registered Address</div>
+                    <div class="field-value">{{ member.address }}</div>
+                </div>
+            </div>
+
+            <div class="pv-section">
+                <div class="pv-label">Original PV Value</div>
+                <div class="pv-value">{{ buy_pv_value }} PV</div>
+            </div>
+
+            <div class="footer-row">
+                <div class="footer-meta">
+                    ISSUED ON: {{ today }}<br>
+                    REF: {{ member.member_code }}-{{ member.id|stringformat:"04d" }}
+                </div>
+
+                <div class="sign-box">
+                    <div class="sign-label">Authorized Signature</div>
+                    <div class="digital-sign">✔ Verified Digital</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

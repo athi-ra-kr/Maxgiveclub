@@ -1,0 +1,303 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="pv-container">
+
+    <!-- ================= HEADER ================= -->
+    <div class="pv-header">
+        <div>
+            <h1>Project Value (PV)</h1>
+            <p>
+                Base value of <strong>1 PV = 100</strong> starting from <strong>2026</strong>.
+                Growth increases yearly and is capped at <strong>14%</strong>.
+            </p>
+        </div>
+
+        <div class="pv-header-badge">
+            <span>Projection Model</span>
+            <small>Annual Compounded Growth</small>
+        </div>
+    </div>
+
+    <!-- ================= SUMMARY ================= -->
+    <div class="pv-summary">
+        <div class="pv-box">
+            <span class="label">Base PV</span>
+            <span class="value">100</span>
+            <small>Initial value</small>
+        </div>
+
+        <div class="pv-box">
+            <span class="label">Start Year</span>
+            <span class="value">2026</span>
+            <small>Projection begins</small>
+        </div>
+
+        <div class="pv-box highlight">
+            <span class="label">Max Growth</span>
+            <span class="value">14%</span>
+            <small>Fixed annually</small>
+        </div>
+    </div>
+
+    <!-- ================= LOGIC ================= -->
+    <div class="pv-card">
+        <h2>Growth Logic</h2>
+        <ul>
+            <li><strong>2026:</strong> Base year (no increase)</li>
+            <li><strong>2027:</strong> 8% increase</li>
+            <li>Each year increases by <strong>+1%</strong></li>
+            <li>Once <strong>14%</strong> is reached, it remains fixed</li>
+        </ul>
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <div class="pv-card">
+        <div class="pv-table-header">
+            <div>
+                <h2>PV Growth Projection</h2>
+                <p>Year-wise value of 1 PV</p>
+            </div>
+            <span class="chip">Capped Growth</span>
+        </div>
+
+        <div class="pv-table-wrapper">
+            <table class="pv-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Increase %</th>
+                        <th>PV Value</th>
+                    </tr>
+                </thead>
+                <tbody id="pv-table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="pv-note">
+            Example: 50 PV × 150 = <strong>7,500</strong>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= PROFESSIONAL STYLES ================= -->
+<style>
+:root {
+    --primary: #1e40af;
+    --primary-light: #eef2ff;
+    --border: #e5e7eb;
+    --text-dark: #111827;
+    --text-muted: #6b7280;
+    --bg-light: #f8fafc;
+}
+
+.pv-container {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* Header */
+.pv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: linear-gradient(135deg, #1e3a8a, #1e40af);
+    color: white;
+    padding: 28px;
+    border-radius: 14px;
+}
+
+.pv-header h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.pv-header p {
+    font-size: 14px;
+    line-height: 1.7;
+    opacity: 0.9;
+}
+
+.pv-header-badge {
+    text-align: right;
+}
+
+.pv-header-badge span {
+    background: white;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.pv-header-badge small {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+/* Summary */
+.pv-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.pv-box {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.pv-box .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.pv-box .value {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 8px 0;
+}
+
+.pv-box small {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.pv-box.highlight {
+    background: var(--primary-light);
+}
+
+/* Cards */
+.pv-card {
+    background: white;
+    border-radius: 14px;
+    padding: 26px;
+    border: 1px solid var(--border);
+}
+
+.pv-card h2 {
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+.pv-card ul {
+    padding-left: 18px;
+    line-height: 1.8;
+    color: var(--text-dark);
+}
+
+/* Table */
+.pv-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.pv-table-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.chip {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.pv-table-wrapper {
+    overflow-x: auto;
+}
+
+.pv-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pv-table th {
+    background: var(--primary);
+    color: white;
+    padding: 14px;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.pv-table td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.pv-table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+.pv-table tr:hover {
+    background: var(--primary-light);
+}
+
+.pv-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pv-summary {
+        grid-template-columns: 1fr;
+    }
+    .pv-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+</style>
+
+<!-- ================= FIXED JS ================= -->
+<script>
+const basePV = 100;
+const startYear = 2026;
+const years = 15;
+const startPercent = 8;
+const maxPercent = 14;
+
+let value = basePV;
+const tbody = document.getElementById("pv-table-body");
+
+for (let i = 0; i < years; i++) {
+    const year = startYear + i;
+    const percent = i === 0 ? 0 : Math.min(startPercent + (i - 1), maxPercent);
+
+    if (percent > 0) {
+        value *= (1 + percent / 100);
+    }
+
+    tbody.innerHTML += `
+        <tr>
+            <td>${year}</td>
+            <td>${percent === 0 ? "—" : percent + "%"}</td>
+            <td>${value.toFixed(2)}</td>
+        </tr>
+    `;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="pv-page">
+
+    <div class="pv-header-container">
+        <div>
+            <h1 class="pv-title">PV Growth Overview ({{ selected_year }})</h1>
+            <p class="pv-subtitle">
+                Base Price for {{ selected_year }}: <strong>₹{{ base_price_this_year }}</strong> per PV.
+                <br>Values include tenure-based compounding.
+            </p>
+            
+            <div class="pv-legend">
+                <span class="legend-item"><span class="dot join-dot"></span> Join Month</span>
+                <span class="legend-item"><span class="dot anni-dot"></span> 1st Year Complete</span>
+            </div>
+        </div>
+
+        <div class="pv-controls">
+            <form method="get" class="search-form">
+                <input type="hidden" name="year" value="{{ selected_year }}">
+                <input type="text" name="search" placeholder="Search Code or Name..." 
+                       value="{{ search_query }}" class="search-input">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+
+            <form method="get" class="year-form">
+                <input type="hidden" name="search" value="{{ search_query }}">
+                <select name="year" onchange="this.form.submit()" class="year-select">
+                    {% for y in available_years %}
+                        <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+
+
+
+
+    
+    <div class="pv-card">
+        <div class="pv-table-wrapper">
+            <table class="pv-table">
+                <thead>
+                    <tr>
+                        <th class="sticky-col">Member Info</th>
+                        <th>Total PV</th>
+                        {% for m in month_labels %}
+                            <th>{{ m }}<br><small>PV / Val</small></th>
+                        {% endfor %}
+                        <th class="summary-col">Year End<br><small>(Dec)</small></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in member_rows %}
+                    <tr>
+                        <td class="sticky-col">
+                            <div class="member-info">
+                                <span class="m-name">{{ row.member.full_name }}</span>
+                                <span class="m-code">{{ row.member.member_code }}</span>
+                                <span class="m-date">Joined: {{ row.join_date|date:"M Y" }}</span>
+                            </div>
+                        </td>
+                        
+                        <td class="total-pv-cell">{{ row.total_pv }}</td>
+
+                        {% for m in row.months %}
+                        <td class="data-cell 
+    {% if m.is_join %}pv-join-highlight{% endif %} 
+    {% if m.is_anniversary %}pv-anniversary-highlight{% endif %}">
+    
+    {% if m.value == "-" %}
+        <span class="dash">-</span>
+    {% else %}
+        <div class="val-box">
+            <div class="v-pv">{{ m.pv }}</div>
+            <div class="v-val">{{ m.value }}</div>
+        </div>
+    {% endif %}
+</td>
+                        {% endfor %}
+
+                        <td class="summary-col">
+                            <div class="val-box">
+                                <div class="v-pv">{{ row.year_end_pv }}</div>
+                                <div class="v-val total-val">{{ row.year_end_val }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="15" class="empty-msg">No members found matching "{{ search_query }}".</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&year={{ selected_year }}&search={{ search_query }}" class="pg-link">Prev</a>
+            {% endif %}
+
+            <span class="pg-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&year={{ selected_year }}&search={{ search_query }}" class="pg-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* --- Layout & Header --- */
+.pv-page { font-family: 'Segoe UI', sans-serif; color: #333; gap: 20px; display: flex; flex-direction: column; }
+.pv-header-container { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; }
+.pv-title { margin: 0; font-size: 22px; color: #1e293b; }
+.pv-subtitle { margin: 5px 0 0; font-size: 13px; color: #64748b; }
+
+/* Legend */
+.pv-legend { margin-top: 10px; display: flex; gap: 15px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.dot { width: 12px; height: 12px; border-radius: 3px; }
+.join-dot { background: #dcfce7; border: 1px solid #86efac; } /* Green */
+.anni-dot { background: #fff7ed; border: 1px solid #fdba74; } /* Orange */
+
+/* --- Controls (Search & Year) --- */
+.pv-controls { display: flex; gap: 10px; }
+.search-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 200px; }
+.search-btn { padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.year-select { padding: 8px 20px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: white; cursor: pointer; }
+
+/* --- Table Styles --- */
+.pv-card { background: white; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; overflow: hidden; }
+.pv-table-wrapper { overflow-x: auto; }
+.pv-table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+
+th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 12px; padding: 10px; border-bottom: 2px solid #e2e8f0; text-align: center; }
+td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; }
+
+/* Sticky Member Column */
+.sticky-col { position: sticky; left: 0; background: #fff; z-index: 10; border-right: 2px solid #e2e8f0; text-align: left; min-width: 180px; }
+th.sticky-col { background: #f1f5f9; text-align: left; padding-left: 15px; }
+
+.member-info { display: flex; flex-direction: column; padding-left: 5px; }
+.m-name { font-weight: 600; color: #0f172a; font-size: 13px; }
+.m-code { font-size: 11px; color: #64748b; }
+.m-date { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+/* Highlights (The logic you requested) */
+.pv-join-highlight { background-color: #dcfce7 !important; border-left: 2px solid #22c55e; } /* Green tint */
+.pv-anniversary-highlight { background-color: #fff7ed !important; border-left: 2px solid #f97316; } /* Orange tint */
+
+/* Data Cells */
+.val-box { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.v-pv { font-size: 11px; color: #64748b; }
+.v-val { font-size: 12px; font-weight: 700; color: #334155; }
+.total-val { color: #2563eb; } /* Blue for summary */
+.dash { color: #000000; font-weight: bold; }
+
+.summary-col { background: #f8fafc; border-left: 1px solid #e2e8f0; }
+
+/* Pagination */
+.pagination { padding: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid #e2e8f0; }
+.pg-link { padding: 6px 12px; background: white; border: 1px solid #cbd5e1; border-radius: 4px; text-decoration: none; color: #333; font-size: 13px; }
+.pg-link:hover { background: #f1f5f9; }
+.pg-info { font-size: 12px; color: #64748b; }
+.empty-msg { padding: 30px; color: #94a3b8; font-style: italic; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="{% static 'images/fav (1).png' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f7fc;
+        }
+
+        .login-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 80vh;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .image-section {
+            width: 50%;
+            background: url('{% static "images/pexels-kseniachernaya-7695026.jpg" %}') no-repeat center center;
+            background-size: cover;
+            height: 100%;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .form-section {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background-color: #ffffff;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .error-box {
+            background: #ffdddd;
+            padding: 12px;
+            border-left: 4px solid #ff4d4d;
+            margin-bottom: 20px;
+            color: #d80000;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: border 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #1d4ed8;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .image-section {
+                width: 100%;
+                height: 200px;
+            }
+            .form-section {
+                width: 100%;
+                height: auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="image-section"></div>
+
+    <div class="form-section">
+        <div class="form-container">
+            <h2>Member Login</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error-box">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- IMPORTANT: post back to memberlogin URL -->
+            <form action="{% url 'memberlogin' %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="member_code">Membercode</label>
+                    <input type="text" id="member_code" name="member_code"
+                           placeholder="Enter your membercode (e.g. M0001)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

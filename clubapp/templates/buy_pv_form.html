@@ -1,0 +1,238 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="pv-page">
+
+    <!-- HEADER -->
+    <div class="pv-header">
+        <div>
+            <h1>{% if mode == 'edit' %}Edit PV{% else %}Add PV{% endif %}</h1>
+            <p class="pv-subtitle">
+                Select a member and assign PV units.
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'buy_pv_list' %}" class="btn-primary">← Back</a>
+        </div>
+    </div>
+
+    <!-- MESSAGES -->
+    {% if messages %}
+        <div class="msg-container">
+            {% for message in messages %}
+                <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- CARD -->
+    <div class="pv-card">
+        <h2>PV Details</h2>
+
+        <form method="POST" class="member-form">
+            {% csrf_token %}
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Member</label>
+                    <select name="member_id" required>
+                        <option value="">-- Select Member --</option>
+                        {% for m in members %}
+                            <option value="{{ m.id }}"
+                                {% if m.id|stringformat:"s" == selected_member_id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ m.member_code }} - {{ m.full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>PV Units</label>
+                    <input type="number"
+                           id="pv_units"
+                           name="pv_units"
+                           min="1"
+                           value="{{ pv_units }}"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>PV Value</label>
+                    <input type="text"
+                           id="pv_value"
+                           readonly
+                           placeholder="Auto calculated">
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    {% if mode == 'edit' %}Update PV{% else %}Save PV{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- STYLES (MATCHES BUY PV LIST PAGE) -->
+<style>
+    :root {
+        --deep-blue: #1565C0;
+        --dark-blue-text: #1d4ed8;
+        --light-blue-hover: #e5f3ff;
+        --light-blue-border: #60a5fa;
+        --dark-text: #111827;
+        --muted-text: #6b7280;
+        --border-default: #d1d5db;
+    }
+
+    .pv-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .pv-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pv-header h1 {
+        font-size: 26px;
+        color: var(--dark-text);
+        margin-bottom: 6px;
+    }
+
+    .pv-subtitle {
+        font-size: 14px;
+        color: var(--muted-text);
+    }
+
+    .pv-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+
+    .member-form {
+        margin-top: 16px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-default);
+        font-size: 14px;
+        background-color: #f9fafb;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--deep-blue);
+        box-shadow: 0 0 0 1px rgba(21, 101, 192, 0.3);
+        background-color: #ffffff;
+        outline: none;
+    }
+
+    .form-actions {
+        margin-top: 18px;
+        text-align: right;
+    }
+
+    .btn-primary {
+        padding: 8px 16px;
+        border-radius: 999px;
+        border: none;
+        background: var(--deep-blue);
+        color: white;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #0d47a1;
+        box-shadow: 0 4px 8px rgba(21, 101, 192, 0.2);
+    }
+
+    /* Messages */
+    .msg-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .msg {
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .msg-success {
+        background-color: #ecfdf3;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .msg-error {
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- JS -->
+<script>
+    const PV_RATE = Number("{{ pv_rate|default:'0' }}");
+    const pvInput = document.getElementById("pv_units");
+    const valueInput = document.getElementById("pv_value");
+
+    function calculatePV() {
+        const units = parseInt(pvInput.value) || 0;
+        valueInput.value = units ? "₹ " + (units * PV_RATE) : "";
+    }
+
+    pvInput.addEventListener("input", calculatePV);
+    calculatePV();
+</script>
+
+{% endblock %}

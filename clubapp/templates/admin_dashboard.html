@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="{% static 'images/fav (1).png' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxGive Club Admin Panel</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* Define a consistent color palette */
+        :root {
+            --sidebar-light: #f8f9fa; /* Very Light Gray for Sidebar */
+            --sidebar-text: #343a40; /* Dark text for light background */
+            
+            /* --- LOGO-MATCHING DEEP BLUE ACCENTS --- */
+            --logo-deep-blue: #1565C0; /* A strong, deep blue that matches the logo's tone */
+            --primary-accent: var(--logo-deep-blue);
+            --action-blue: var(--logo-deep-blue);
+            /* -------------------------------------- */
+
+            --light-bg: #f4f7fc;
+            --sidebar-border: #dee2e6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Container (Light Color) */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-light);
+            color: var(--sidebar-text);
+            position: fixed;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--sidebar-border);
+            z-index: 1000;
+        }
+
+        /* Header - Logo and Title */
+        .sidebar-header {
+            padding: 20px 20px;
+            text-align: center;
+            background-color: var(--sidebar-light);
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 10px;
+            opacity: 1;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--sidebar-text);
+            text-transform: uppercase;
+        }
+
+        /* Menu Links */
+        .menu-links {
+            flex-grow: 1;
+            padding-top: 10px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--sidebar-text); /* Default color is dark gray */
+            text-decoration: none;
+            font-size: 16px;
+            border-left: 4px solid transparent;
+            transition: 0.25s ease-in-out;
+        }
+
+        /* Hover State */
+        .sidebar a:hover {
+            /* Using a lightened version of the deep blue for background contrast */
+            background-color: rgba(21, 101, 192, 0.1); 
+            border-left-color: var(--primary-accent);
+            color: var(--primary-accent); /* Text and Icon turn logo blue */
+            padding-left: 26px;
+        }
+
+        /* Active State */
+        .sidebar a.active {
+            /* Using a slightly stronger light blue for the active background */
+            background-color: rgba(21, 101, 192, 0.15); 
+            border-left-color: var(--primary-accent);
+            color: var(--primary-accent); /* Text and Icon stay logo blue */
+            font-weight: 600;
+        }
+        
+        /* Logout Button (Deep Blue) */
+        .logout-btn {
+            background-color: var(--action-blue); /* Matches logo blue */
+            color: white !important;
+            text-align: center;
+            margin: 15px;
+            padding: 12px 0;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            /* Darkening the logo blue slightly for the hover effect */
+            background-color: #0d47a1; 
+            padding-left: 20px !important;
+        }
+
+        /* Icon styling */
+        .icon {
+            width: 18px;
+            height: 18px;
+            opacity: 1;
+        }
+        
+        /* Logout Button Icon color */
+        .logout-btn i {
+            color: white !important; 
+        }
+        
+        /* Main content area */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="sidebar-header">
+            <img src="{% static 'images/maxlogo.png' %}" alt="MaxGive Club Logo" class="logo">
+            <h2>Admin Panel</h2>
+        </div>
+
+        <div class="menu-links">
+            
+            <a href="{% url 'project_value' %}" class="{% if request.path == '/project_value/' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line icon"></i>
+                Project Value 
+            </a>
+
+            <a href="/members/" class="{% if request.path == '/members/' %}active{% endif %}">
+                <i class="fa-solid fa-user-plus icon"></i>
+                Add Member
+            </a>
+
+            <a href="/buy-pv/" class="{% if request.path == '/buy-pv/' %}active{% endif %}">
+                <i class="fa-solid fa-wallet icon"></i>
+                Buy PV
+            </a>
+
+            <a href="/members-pv-overview/" class="{% if request.path == '/members-pv-overview/' %}active{% endif %}">
+                <i class="fa-solid fa-users icon"></i>
+                List Member
+            </a>
+
+        </div>
+
+        <a href="/logout/" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket icon"></i> 
+            Logout
+        </a>
+
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        <h1>Welcome, Admin</h1>
+        <p>Use the professional navigation panel on the left to manage the MaxGive Club.</p>
+        {% endblock %}
+    </div>
+
+</body>
+</html>

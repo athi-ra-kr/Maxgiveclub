@@ -1,0 +1,452 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard | MaxGive Club</title>
+    <link rel="icon" type="image/png" href="{% static 'images/fav (1).png' %}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2c3e50;    /* Deep Blue */
+            --primary-light: #34495e;
+            --accent: #27ae60;     /* Success Green */
+            --accent-hover: #219150;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-dark: #2d3436;
+            --text-muted: #636e72;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 8px 16px rgba(0,0,0,0.06);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Layout Grid --- */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 320px 1fr; /* Fixed Sidebar, Fluid Content */
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* --- Sidebar Profile --- */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            text-align: center;
+            height: fit-content;
+            position: sticky;
+            top: 30px;
+        }
+
+        .logo-container img {
+            max-width: 160px;
+            margin-bottom: 25px;
+        }
+
+        .user-avatar {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 10px 0 5px;
+            color: var(--primary);
+        }
+
+        .profile-code {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            background: #f1f2f6;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        .contact-info {
+            text-align: left;
+            border-top: 1px solid #eee;
+            padding-top: 25px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .info-row i {
+            color: var(--accent);
+            width: 30px;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            margin-top: 30px;
+            background: #fff0f0;
+            color: #c0392b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .logout-btn:hover { background: #c0392b; color: white; }
+
+        /* --- Main Content --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Summary Header */
+        .summary-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-text h2 { margin: 0 0 8px 0; font-size: 16px; opacity: 0.9; font-weight: 500; }
+        .summary-text .total-amount { font-size: 38px; font-weight: 700; letter-spacing: -0.5px; }
+        .summary-icon { font-size: 48px; opacity: 0.2; }
+
+        /* Investment Cards */
+        .investment-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .investment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h3 { margin: 0; font-size: 17px; color: var(--primary); font-weight: 600; }
+        .card-header .date { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+        .card-body {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* 1/3 Stats, 2/3 Chart */
+            gap: 40px;
+            align-items: center;
+        }
+
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .stat-item {
+            position: relative;
+        }
+        .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .stat-value.green { color: var(--accent); font-size: 24px; }
+
+        .chart-container {
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Footer & Button */
+        .card-footer {
+            padding: 15px 30px;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .cert-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: transparent;
+            color: var(--primary);
+            padding: 10px 24px;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .cert-btn:hover { 
+            background-color: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                grid-template-columns: 1fr; /* Stack layout */
+                padding: 20px;
+            }
+            .profile-card {
+                position: relative;
+                top: 0;
+            }
+            .card-body {
+                grid-template-columns: 1fr; /* Stack stats and chart */
+                gap: 30px;
+            }
+            .chart-container {
+                height: 220px;
+            }
+            .card-footer {
+                justify-content: center;
+            }
+            .cert-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    
+    <aside class="profile-card">
+        <div class="logo-container">
+            <img src="{% static 'images/maxlogo.png' %}" alt="MaxGive Logo">
+        </div>
+        
+        <div class="user-avatar">
+            {{ member.full_name|make_list|first|upper }}
+        </div>
+        
+        <h2 class="profile-name">{{ member.full_name }}</h2>
+        <span class="profile-code">{{ member.member_code }}</span>
+
+        <div class="contact-info">
+            <div class="info-row">
+                <i class="fas fa-envelope"></i>
+                <span>{{ member.email }}</span>
+            </div>
+            <div class="info-row">
+                <i class="fas fa-phone"></i>
+                <span>{{ member.phone_number }}</span>
+            </div>
+            <div class="info-row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ member.address }}</span>
+            </div>
+        </div>
+
+        <a href="{% url 'member_logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="summary-header">
+            <div class="summary-text">
+                <h2>Total Portfolio Value</h2>
+                <div class="total-amount">₹ {{ overall_total_value }}</div>
+            </div>
+            <div class="summary-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+
+        <h3 style="margin: 10px 0 0; color: var(--primary); font-size: 18px; font-weight: 700;">Your Investments</h3>
+
+        {% if dashboard_data %}
+            {% for item in dashboard_data %}
+            <div class="investment-card">
+                <div class="card-header">
+                    <h3>Investment #{{ forloop.counter }}</h3>
+                    <span class="date"><i class="far fa-calendar-alt"></i> {{ item.date|date:"d M, Y" }}</span>
+                </div>
+                
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Initial Investment</span>
+                            <span class="stat-value">₹ {{ item.buy_value|floatformat:2 }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Current Value</span>
+                            <span class="stat-value green">₹ {{ item.current_value|floatformat:2 }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Projected (10 Years)</span>
+                            <span class="stat-value" id="proj-val-{{ item.id }}">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="chart-{{ item.id }}"></canvas>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <a href="{% url 'member_certificate' item.id %}" target="_blank" class="cert-btn">
+                        <i class="fas fa-certificate"></i> View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const ctx = document.getElementById('chart-{{ item.id }}').getContext('2d');
+                    
+                    // Parse data from Django safely (Now containing 10-year projection)
+                    const labels = {{ item.graph_labels|safe }};
+                    const dataPoints = {{ item.graph_data|safe }};
+                    
+                    // Update Projected Value Text with the last value in the array (Year 10)
+                    if (dataPoints.length > 0) {
+                        const lastVal = dataPoints[dataPoints.length - 1];
+                        document.getElementById('proj-val-{{ item.id }}').innerText = "₹ " + lastVal.toFixed(2);
+                    }
+
+                    // Create Gradient for a beautiful chart look
+                    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, 'rgba(39, 174, 96, 0.2)'); 
+                    gradient.addColorStop(1, 'rgba(39, 174, 96, 0.0)'); 
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Projected Value',
+                                data: dataPoints,
+                                borderColor: '#27ae60',
+                                backgroundColor: gradient,
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4, // Smooths the line curve
+                                pointRadius: 3,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#27ae60',
+                                pointHoverRadius: 6,
+                                pointHoverBackgroundColor: '#27ae60'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    titleColor: '#333',
+                                    bodyColor: '#333',
+                                    borderColor: '#ddd',
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: function(tooltipItems) {
+                                            return 'Year: ' + tooltipItems[0].label;
+                                        },
+                                        label: function(context) {
+                                            return ' Value: ₹ ' + context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { 
+                                    display: true, // Show years on X-axis
+                                    grid: { display: false },
+                                    ticks: { color: '#999', font: { size: 10 } }
+                                },
+                                y: {
+                                    display: true,
+                                    grid: { color: '#f0f0f0', drawBorder: false },
+                                    ticks: {
+                                        color: '#999',
+                                        font: { size: 10 },
+                                        callback: function(value) { return '₹' + value; }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 60px; background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <i class="fas fa-chart-pie" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                <h3 style="color: #666; margin: 0;">No active investments found.</h3>
+                <p style="color: #999;">Contact admin to activate your plan.</p>
+            </div>
+        {% endif %}
+
+    </main>
+</div>
+
+</body>
+</html>
