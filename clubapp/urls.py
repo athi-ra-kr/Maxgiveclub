@@ -25,4 +25,18 @@ urlpatterns = [
     
     # UPDATED: Now accepts an integer ID for specific certificates
     path("member/certificate/<int:pk>/", views.member_certificate, name="member_certificate"),
+
+
+    path("dividend/",views.dividend_list, name="dividend_list"),
+    path("dividend/add/",views.dividend_add, name="dividend_add"),
+    path("dividend/edit/<int:pk>/",views.dividend_edit, name="dividend_edit"),
+    path("dividend/delete/<int:pk>/",views.dividend_delete, name="dividend_delete"),
+
+
+
+
+
+
+
 ]
+

@@ -1,0 +1,252 @@
+{% extends "admin_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="pv-page">
+
+    <!-- HEADER -->
+    <div class="pv-header">
+        <div>
+            <h1>Dividends</h1>
+            <p class="pv-subtitle">
+                View, search, edit and delete dividend records. Showing paginated results.
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'dividend_add' %}" class="btn-primary">+ Add Dividend</a>
+        </div>
+    </div>
+
+    <!-- MESSAGES -->
+    {% if messages %}
+        <div class="msg-container">
+            {% for message in messages %}
+                <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- CARD -->
+    <div class="pv-card">
+        <h2>Dividend List</h2>
+
+        <!-- SEARCH -->
+        <form method="get" class="search-form" style="margin-bottom: 15px; text-align: right;">
+            <input type="text"
+                   name="q"
+                   placeholder="Search by member name or code"
+                   value="{{ query }}"
+                   class="search-input">
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+
+        <!-- TABLE -->
+        <div class="table-wrapper">
+            <table class="pv-table">
+                <thead>
+                    <tr>
+                        <th>Member Code</th>
+                        <th>Member Name</th>
+                        <th>Dividend Amount</th>
+                        <th>Note</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in page_obj %}
+                    <tr>
+                        <td>{{ d.member.member_code }}</td>
+                        <td>{{ d.member.full_name }}</td>
+                        <td>₹ {{ d.amount }}</td>
+                        <td>{{ d.note|default:"—" }}</td>
+                        <td>
+                            <a href="{% url 'dividend_edit' d.id %}" class="link-btn">Edit</a>
+
+                            <form method="post"
+                                  action="{% url 'dividend_delete' d.id %}"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('Delete dividend for {{ d.member.member_code }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="link-btn danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No dividends found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+                   class="page-link">Previous</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <span class="page-link active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}"
+                       class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+                   class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- STYLES (MATCHES BUY PV LIST PAGE) -->
+<style>
+    :root {
+        --deep-blue: #1565C0;
+        --dark-blue-text: #1d4ed8;
+        --light-blue-hover: #e5f3ff;
+        --light-blue-border: #60a5fa;
+        --dark-text: #111827;
+        --muted-text: #6b7280;
+    }
+
+    .pv-page { display: flex; flex-direction: column; gap: 24px; }
+    .pv-header { display: flex; justify-content: space-between; align-items: center; }
+    .pv-header h1 { font-size: 26px; color: var(--dark-text); margin-bottom: 6px; }
+    .pv-subtitle { font-size: 14px; color: var(--muted-text); }
+
+    .pv-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+
+    .table-wrapper { margin-top: 10px; overflow-x: auto; }
+    .pv-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+
+    .pv-table th,
+    .pv-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .pv-table th {
+        background: #f3f4f6;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .pv-table tr:nth-child(even) { background-color: #f9fafb; }
+    .pv-table tr:hover td { background-color: #eff6ff; }
+
+    .link-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #3b82f6;
+        color: var(--dark-blue-text);
+        text-decoration: none;
+        margin-right: 6px;
+        background: white;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .link-btn:hover { background-color: #dbeafe; }
+
+    .link-btn.danger {
+        border-color: #ef4444;
+        color: #b91c1c;
+    }
+
+    .link-btn.danger:hover { background-color: #fee2e2; }
+
+    .btn-primary {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: none;
+        background: var(--deep-blue);
+        color: white;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #0d47a1;
+        box-shadow: 0 4px 8px rgba(21, 101, 192, 0.2);
+    }
+
+    .search-input {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        width: 220px;
+        margin-right: 8px;
+    }
+
+    .search-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px rgba(59,130,246,0.3);
+        outline: none;
+    }
+
+    .pagination {
+        margin-top: 16px;
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        min-width: 32px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        font-size: 13px;
+        color: #374151;
+        text-decoration: none;
+        background-color: #ffffff;
+        text-align: center;
+    }
+
+    .page-link:hover {
+        background-color: var(--light-blue-hover);
+        border-color: var(--light-blue-border);
+        color: var(--dark-blue-text);
+    }
+
+    .page-link.active {
+        background: var(--deep-blue);
+        border-color: var(--deep-blue);
+        color: white;
+        font-weight: 600;
+        cursor: default;
+    }
+
+    .msg-container { display: flex; flex-direction: column; gap: 8px; }
+    .msg { padding: 10px 12px; border-radius: 8px; font-size: 13px; }
+    .msg-success { background-color: #ecfdf3; color: #15803d; border: 1px solid #bbf7d0; }
+    .msg-error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+</style>
+
+{% endblock %}

@@ -103,3 +103,13 @@ class PVTransaction(models.Model):
         Total value of this transaction (all PV units) in the *current year*.
         """
         return round(self.pv_units * self.current_value_per_pv, 2)
+
+
+
+class Dividend(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    note = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.member.member_code} - {self.amount}"

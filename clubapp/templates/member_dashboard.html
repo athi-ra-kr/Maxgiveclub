@@ -142,21 +142,38 @@
             gap: 30px;
         }
 
-        /* Summary Header */
+        /* --- Split Summary Header --- */
         .summary-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
-            padding: 30px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+            color: inherit;
         }
 
-        .summary-text h2 { margin: 0 0 8px 0; font-size: 16px; opacity: 0.9; font-weight: 500; }
-        .summary-text .total-amount { font-size: 38px; font-weight: 700; letter-spacing: -0.5px; }
-        .summary-icon { font-size: 48px; opacity: 0.2; }
+        .summary-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .summary-card.green {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .summary-card h2 { margin: 0 0 8px 0; font-size: 15px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .summary-card .total-amount { font-size: 32px; font-weight: 700; z-index: 2; }
+        .summary-card .icon-bg { position: absolute; right: 20px; bottom: 10px; font-size: 60px; opacity: 0.15; z-index: 1; }
+
 
         /* Investment Cards */
         .investment-card {
@@ -238,6 +255,22 @@
             box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
         }
 
+        /* --- Dividend Table Styles --- */
+        .dividend-section { margin-top: 40px; }
+        .table-container {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; text-align: left; padding: 15px 25px; font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        td { padding: 15px 25px; border-bottom: 1px solid #eee; font-size: 14px; color: var(--primary); }
+        tr:last-child td { border-bottom: none; }
+        .amount-positive { color: var(--accent); font-weight: 700; }
+
         /* --- Mobile Responsiveness --- */
         @media (max-width: 992px) {
             .dashboard-container {
@@ -262,6 +295,10 @@
                 width: 100%;
                 justify-content: center;
             }
+        }
+
+        @media (max-width: 768px) {
+            .summary-header { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -304,12 +341,16 @@
     <main class="main-content">
         
         <div class="summary-header">
-            <div class="summary-text">
+            <div class="summary-card">
                 <h2>Total Portfolio Value</h2>
                 <div class="total-amount">₹ {{ overall_total_value }}</div>
+                <div class="icon-bg"><i class="fas fa-wallet"></i></div>
             </div>
-            <div class="summary-icon">
-                <i class="fas fa-wallet"></i>
+
+            <div class="summary-card green">
+                <h2>Total Dividends Earned</h2>
+                <div class="total-amount">₹ {{ total_dividends|default:"0.00" }}</div>
+                <div class="icon-bg"><i class="fas fa-coins"></i></div>
             </div>
         </div>
 
@@ -443,6 +484,32 @@
                 <h3 style="color: #666; margin: 0;">No active investments found.</h3>
                 <p style="color: #999;">Contact admin to activate your plan.</p>
             </div>
+        {% endif %}
+
+        {% if dividends %}
+        <div class="dividend-section">
+            <h3 style="margin: 0 0 15px; color: var(--primary); font-size: 18px; font-weight: 700;">Dividend History</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="10%">S.No</th>
+                            <th width="50%">Note / Description</th>
+                            <th width="40%" style="text-align: right;">Amount Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for div in dividends %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ div.note|default:"Dividend Payout" }}</td>
+                            <td style="text-align: right;" class="amount-positive">+ ₹ {{ div.amount }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% endif %}
 
     </main>
